@@ -10,7 +10,7 @@ from requests.auth import HTTPBasicAuth
 from jinja2 import Template
 import urllib3
 urllib3.disable_warnings() 
-
+import pdfkit
 
 class imgRequestError(Exception):
     pass
@@ -31,7 +31,6 @@ def parse_args():
     p = argparse.ArgumentParser(description=desc,epilog=epilog)
     p.add_argument('-c','--console',metavar='TL_CONSOLE', help='query the API of this Console')
     p.add_argument('-u','--user',metavar='TL_USER',help='Console username')
-    
     args = p.parse_args()
 
     # Populate args by env vars if they're set
@@ -58,18 +57,18 @@ def parse_args():
 
 def generate_html(images_json):
     "This converts the images API output to HTML"
-    report_body_template = open("report_body_ci.html.j2").read()
+    report_body_template = open("report_body.html.j2").read()
     template = Template(report_body_template)
-    output_html = template.render(images=images_json)
+    output_html = template.render(results=images_json)
     return output_html
 
 def get_images_json(console,user,password):
-    api_endpt = '/api/v1/scans?type=ciImage&jobNameHello-Node&limit=1&offset=0'
-    request_url = console + api_endpt
+    api_endpoint = '/api/v1/stats/compliance?category=Kubernetes'
+    request_url = console + api_endpoint
     image_req = requests.get(request_url, verify=False, auth=HTTPBasicAuth(user,password))
     if image_req.status_code != 200:
         # This means something went wrong.
-        raise imgRequestError('GET /api/v1/scans {} {}'.format(image_req.status_code,image_req.reason))
+        raise imgRequestError('GET /api/v1/stats/compliance {} {}'.format(image_req.status_code,image_req.reason))
     return image_req.json()
 
 def main():
@@ -77,19 +76,15 @@ def main():
     args = parse_args()
 
     try:
-        images_json = get_images_json(args.console,args.user,args.password)
+        compliance_json = get_images_json(args.console,args.user,args.password)
 
     except imgRequestError as e:
         print("Error querying API: {}".format(e))
         return 3
-
-    
-    
-    
-    #print(images_json)
-
-    output_html = generate_html(images_json)
+    #print(compliance_json)
+    output_html = generate_html(compliance_json)
     print(output_html, file=open("report.html", "w"))
+    pdfkit.from_file("report.html", 'report.pdf')
 
     return 0
 

@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<HEAD>
+<TITLE>Prisma Cloud Compute Images Report</TITLE>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/dataTables.jqueryui.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/dataTables.jqueryui.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $('#images').DataTable();
+  } );
+</script>
+</HEAD>
+<BODY>
+  <MAIN>
+    <H1>Twistlock K8s Compliance Report</H1> 
+        <TABLE id="images" class="display" style="width:100%">
+        <THEAD>
+          <TR>
+            <TH style="width:10%">ID</TH>
+            <TH style="width:10%">Description</TH>
+            <TH style="width:10%">Severity</TH>
+            <TH style="width:10%">Failing Resources</TH>
+            <TH style="width:10%">Total Resources</TH>
+
+
+
+          </TR>
+        </THEAD>
+
+         <TBODY>
+        {% for items in results.ids %}
+          <TR>
+            <TD>{{ items.benchmarkID }}</TD>
+            <TD>{{ items.description }}</TD>
+            <TD>{{ items.severity }}</TD>
+            <TD>{{ items.failed }}</TD>
+            <TD>{{ items.total }}</TD>
+  
+
+          </TR>
+        {% endfor %}
+        </TBODY>
+      </TABLE>
+   
+  </MAIN> 
+</BODY>
+</HTML>
+
